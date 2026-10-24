@@ -39,23 +39,7 @@
         <span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span>
         <span class="terminal-title">app.js</span>
       </div>
-<pre class="terminal-code"><code><span class="tok-comment">// Ask this phone where it is.</span>
-<span class="tok-kw">const</span> geo = navigator.<span class="tok-prop">geolocation</span>;
-geo.<span class="tok-fn">getCurrentPosition</span>(
-  (pos) =&gt; {
-    <span class="tok-kw">const</span> { latitude, longitude } =
-      pos.<span class="tok-prop">coords</span>;
-    <span class="tok-comment">// Shown here, never sent.</span>
-    status.<span class="tok-prop">textContent</span> =
-      <span class="tok-str">`${latitude}, ${longitude}`</span>;
-  },
-  (err) =&gt; {
-    status.<span class="tok-prop">textContent</span> = <span class="tok-str">'No location.'</span>;
-  },
-  { <span class="tok-prop">enableHighAccuracy</span>: <span class="tok-kw">true</span> }
-);
-
-console.<span class="tok-fn">log</span>(<span class="tok-str">"What's up Jack!"</span>);</code></pre>
+<pre class="terminal-code" aria-label="The code this page runs, with the values it produced"><code id="code"></code></pre>
     </div>
     <div class="install-hint">On iPhone: Share → Add to Home Screen<br>On Android: Menu → Install app</div>
   </div>

@@ -134,13 +134,33 @@ button:disabled { background: #c7c7cc; }
 }
 .terminal-code {
   margin: 0;
-  padding: 0.8rem 0.9rem;
-  overflow-x: auto;
+  padding: 0.8rem 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
   color: #d4d4d4;
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   font-size: 0.7rem;
   line-height: 1.5;
 }
+.line {
+  display: block;
+  /* Wrapped parts of a long line hang 4 characters in. */
+  padding: 0 0.9rem 0 calc(0.9rem + 4ch);
+  text-indent: -4ch;
+}
+/* The lines that just ran, and the values they produced. */
+.line.ran {
+  background: rgba(255, 214, 10, 0.14);
+  box-shadow: inset 3px 0 0 #ffd60a;
+}
+.note {
+  display: block;
+  text-indent: 0;
+  padding-left: 2ch;
+  color: #4ec9b0;
+}
+.line:not(.ran) .note { opacity: 0.6; }
+.tok-num { color: #b5cea8; }
 .tok-comment { color: #6a9955; font-style: italic; }
 .tok-fn { color: #dcdcaa; }
 .tok-prop { color: #9cdcfe; }

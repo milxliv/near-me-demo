@@ -24,7 +24,7 @@ with no build step.
 | File | Purpose |
 | --- | --- |
 | `index.html` | The page. Its Content Security Policy allows only this site's own files, plus the one quote endpoint. |
-| `app.js` | Asks for the location and shows it; sends only the name to the quote service. |
+| `app.js` | Asks for the location and shows it; sends only the name to the quote service. The code panel on the page shows this file's functions as they run, with the values they produce. |
 | `app.css` | Styles. |
 | `sw.js` | Service worker: loads from the network first and falls back to a cache offline. |
 | `manifest.json` | Name, icons, and launch settings for the installed app. |
