@@ -1,10 +1,11 @@
 //! near-me-quote: `POST /api/quote` with `{"name": "..."}` returns
-//! `{"quote": "...", "citation": "..."}`.
+//! `{"quote": "...", "citation": "..."}` for a real quote that uses the name,
+//! or `{"message": "No famous quote found for <name>."}`.
 //!
 //! The service stores nothing and logs no requests. It accepts calls only from
 //! one browser origin, only as JSON, only with a `name` field, and only a few
-//! per client per minute. It looks the name up on Wikiquote and falls back to
-//! a curated list when that finds nothing.
+//! per client per minute. It looks the name up on Wikiquote, then in a curated
+//! list. It never puts a name into a quote that does not already contain it.
 
 pub mod error;
 pub mod limit;
@@ -48,6 +49,15 @@ pub struct QuoteResponse {
     pub citation: String,
 }
 
+/// The body of a successful `POST /api/quote`. The message holds the cleaned
+/// name, which `clean_name` limits to letters, spaces, `-`, `'`, and `.`.
+#[derive(Debug, Serialize)]
+#[serde(untagged)]
+pub enum QuoteReply {
+    Found(QuoteResponse),
+    NotFound { message: String },
+}
+
 /// Builds the router. `allowed_origin` is the one browser origin that may
 /// call the API, for example `https://milxliv.github.io`. With `live` set,
 /// each name is looked up there first; without it, only the curated list
@@ -89,7 +99,7 @@ async fn quote(
     State(state): State<Arc<AppState>>,
     headers: HeaderMap,
     body: Bytes,
-) -> Result<Json<QuoteResponse>, ApiError> {
+) -> Result<Json<QuoteReply>, ApiError> {
     if headers.get(header::ORIGIN) != Some(&state.origin) {
         return Err(ApiError::Forbidden);
     }
@@ -116,9 +126,14 @@ async fn quote(
     if let Some(live) = &state.live
         && let Some(found) = live.find(&name, seed).await
     {
-        return Ok(Json(found));
+        return Ok(Json(QuoteReply::Found(found)));
     }
-    Ok(Json(quotes::pick(&name, seed)))
+    Ok(Json(match quotes::pick(&name, seed) {
+        Some(found) => QuoteReply::Found(found),
+        None => QuoteReply::NotFound {
+            message: quotes::not_found(&name),
+        },
+    }))
 }
 
 /// Returns the name from a body that is exactly `{"name": "<string>"}`.

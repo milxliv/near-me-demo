@@ -91,6 +91,10 @@ button:disabled { background: #c7c7cc; }
   font-weight: 600;
   line-height: 1.4;
 }
+.quote.is-note blockquote {
+  font-weight: 400;
+  color: #3a3a3c;
+}
 .quote figcaption {
   margin-top: 0.6rem;
   color: #636366;

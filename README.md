@@ -36,6 +36,7 @@ with no build step.
 
 ```
 POST /api/quote   {"name": "Jack"}   ->   {"quote": "...", "citation": "..."}
+POST /api/quote   {"name": "Qwzx"}   ->   {"message": "No famous quote found for Qwzx."}
 ```
 
 - The service searches [Wikiquote](https://en.wikiquote.org) for a line that uses the name and
@@ -45,9 +46,10 @@ POST /api/quote   {"name": "Jack"}   ->   {"quote": "...", "citation": "..."}
   sees the server's address, not yours, and none of your browser's headers.
 - A word filter drops lines with profanity, slurs, or graphic violence. It is a filter, not a
   guarantee.
-- If Wikiquote finds nothing usable, fails, or takes more than 4 seconds, a fixed list checked
-  by hand answers instead. A name with no match there gets a famous line with the name put in.
-  Its citation starts with "Adapted from".
+- If Wikiquote finds nothing usable, fails, or takes more than 4 seconds, a short list checked
+  by hand answers instead. Every quote on it contains its name.
+- If neither has a quote that uses the name, the answer is a message with no quote and no
+  citation. The service never puts a name into a quote that does not already contain it.
 - It accepts only `{"name": "..."}` as JSON from this site's origin. A name is 1 to 40 letters,
   spaces, hyphens, apostrophes, or periods.
 - Each visitor gets 10 requests a minute, and the service takes 300 a minute in total.

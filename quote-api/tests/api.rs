@@ -58,15 +58,14 @@ async fn a_name_gets_a_quote_and_citation_only() {
 }
 
 #[tokio::test]
-async fn an_unknown_name_gets_an_adapted_quote() {
+async fn an_unknown_name_gets_a_message_and_no_citation() {
     let body = r#"{"name":"  zebulon  "}"#;
     let (status, response) = send(&router(), post().body(Body::from(body)).unwrap()).await;
     assert_eq!(status, StatusCode::OK);
     let v = json(response).await;
-    assert!(v["quote"].as_str().unwrap().contains("Zebulon"), "{v}");
-    assert!(
-        v["citation"].as_str().unwrap().starts_with("Adapted from "),
-        "{v}"
+    assert_eq!(
+        v,
+        serde_json::json!({ "message": "No famous quote found for Zebulon." })
     );
 }
 
@@ -404,6 +403,20 @@ async fn no_usable_line_falls_back() {
         !v["citation"].as_str().unwrap().ends_with(CITATION_SUFFIX),
         "{v}"
     );
+}
+
+#[tokio::test]
+async fn no_line_on_wikiquote_or_in_the_list_gets_a_message() {
+    let (router, seen) = live_router(Fake::Page(DINNER_BELL), Duration::from_secs(2)).await;
+    let request = post().body(Body::from(r#"{"name":"zebulon"}"#)).unwrap();
+    let (status, response) = send(&router, request).await;
+    assert_eq!(status, StatusCode::OK);
+    let v = json(response).await;
+    assert_eq!(
+        v,
+        serde_json::json!({ "message": "No famous quote found for Zebulon." })
+    );
+    assert_eq!(seen.lock().expect("lock").len(), 2, "Wikiquote was asked");
 }
 
 #[test]

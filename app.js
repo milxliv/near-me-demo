@@ -48,10 +48,12 @@ btn.onclick = () => {
   );
 };
 
+// Without a citation, the text is a note (status or "no quote found"), not a quote.
 function showQuote(text, cite) {
   quoteText.textContent = text;
   quoteCite.textContent = cite;
   quoteCite.hidden = !cite;
+  quoteBox.classList.toggle('is-note', !cite);
   quoteBox.hidden = false;
 }
 
@@ -82,14 +84,15 @@ nameForm.onsubmit = async (event) => {
       return;
     }
     const data = res.ok ? await res.json() : null;
-    const valid = data
-      && typeof data.quote === 'string' && typeof data.citation === 'string'
-      && data.quote.length > 0 && data.quote.length <= MAX_FIELD
-      && data.citation.length > 0 && data.citation.length <= MAX_FIELD;
-    if (!valid) {
+    const field = (value) => typeof value === 'string' && value.length > 0 && value.length <= MAX_FIELD;
+    if (data && field(data.quote) && field(data.citation)) {
+      showQuote(`“${data.quote}”`, `— ${data.citation}`);
+    } else if (data && field(data.message) && !('quote' in data) && !('citation' in data)) {
+      // No real quote uses the name: say so, with no quote marks and no citation.
+      showQuote(data.message, '');
+    } else {
       throw new Error('bad response');
     }
-    showQuote(`“${data.quote}”`, `— ${data.citation}`);
   } catch {
     showQuote("Couldn't get a quote right now. Try again in a moment.", '');
   } finally {

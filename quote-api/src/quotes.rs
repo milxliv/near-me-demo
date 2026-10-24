@@ -1,7 +1,8 @@
-//! Curated quotes that use a first name, plus adapted fallbacks.
+//! Curated quotes that use a first name.
 //!
 //! This is the fallback when the Wikiquote lookup finds nothing, fails, or is
-//! switched off. The list is fixed and reviewed by hand.
+//! switched off. The list is fixed and reviewed by hand, and every quote
+//! contains its name as written: no name is ever put into another quote.
 
 use crate::QuoteResponse;
 
@@ -27,13 +28,6 @@ const NAMED: &[(&str, &[Quote])] = &[
         )],
     ),
     (
-        "brutus",
-        &[q(
-            "Et tu, Brute?",
-            "Julius Caesar, Shakespeare, Julius Caesar, Act 3, Scene 1",
-        )],
-    ),
-    (
         "carl",
         &[q(
             "Carl, that kills people!",
@@ -49,13 +43,6 @@ const NAMED: &[(&str, &[Quote])] = &[
     ),
     (
         "dave",
-        &[q(
-            "I'm sorry, Dave. I'm afraid I can't do that.",
-            "HAL 9000, 2001: A Space Odyssey (1968)",
-        )],
-    ),
-    (
-        "david",
         &[q(
             "I'm sorry, Dave. I'm afraid I can't do that.",
             "HAL 9000, 2001: A Space Odyssey (1968)",
@@ -194,13 +181,6 @@ const NAMED: &[(&str, &[Quote])] = &[
         )],
     ),
     (
-        "rose",
-        &[q(
-            "What's in a name? That which we call a rose by any other name would smell as sweet.",
-            "Juliet, Shakespeare, Romeo and Juliet, Act 2, Scene 2",
-        )],
-    ),
-    (
         "sam",
         &[q(
             "Play it, Sam. Play 'As Time Goes By.'",
@@ -237,31 +217,6 @@ const NAMED: &[(&str, &[Quote])] = &[
     ),
 ];
 
-/// Famous lines with the name put in. The citation says "Adapted from" so
-/// nobody mistakes them for the original.
-const ADAPTED: &[(&str, &str)] = &[
-    (
-        "{name}, I've a feeling we're not in Kansas anymore.",
-        "Adapted from Dorothy Gale, The Wizard of Oz (1939)",
-    ),
-    (
-        "Here's looking at you, {name}.",
-        "Adapted from Rick Blaine, Casablanca (1942)",
-    ),
-    (
-        "May the Force be with you, {name}.",
-        "Adapted from Star Wars (1977)",
-    ),
-    (
-        "{name}, you're gonna need a bigger boat.",
-        "Adapted from Martin Brody, Jaws (1975)",
-    ),
-    (
-        "To infinity and beyond, {name}!",
-        "Adapted from Buzz Lightyear, Toy Story (1995)",
-    ),
-];
-
 /// Normalizes a submitted name, or rejects it.
 ///
 /// Accepts 1-40 characters: letters, spaces, hyphens, apostrophes, and
@@ -277,22 +232,21 @@ pub fn clean_name(raw: &str) -> Option<String> {
     Some(name)
 }
 
-/// Picks a quote for a name that `clean_name` accepted. `seed` chooses among
-/// several candidates.
-pub fn pick(name: &str, seed: usize) -> QuoteResponse {
+/// Picks a curated quote for a name that `clean_name` accepted, or `None`
+/// when the list has none. `seed` chooses among several.
+pub fn pick(name: &str, seed: usize) -> Option<QuoteResponse> {
     let key = lookup_key(name);
-    if let Some((_, quotes)) = NAMED.iter().find(|(k, _)| *k == key) {
-        let chosen = &quotes[seed % quotes.len()];
-        return QuoteResponse {
-            quote: chosen.text.to_owned(),
-            citation: chosen.citation.to_owned(),
-        };
-    }
-    let (template, citation) = ADAPTED[seed % ADAPTED.len()];
-    QuoteResponse {
-        quote: template.replace("{name}", &display_name(name)),
-        citation: citation.to_owned(),
-    }
+    let (_, quotes) = NAMED.iter().find(|(k, _)| *k == key)?;
+    let chosen = quotes.get(seed % quotes.len())?;
+    Some(QuoteResponse {
+        quote: chosen.text.to_owned(),
+        citation: chosen.citation.to_owned(),
+    })
+}
+
+/// The answer when no real quote uses the name.
+pub fn not_found(name: &str) -> String {
+    format!("No famous quote found for {}.", display_name(name))
 }
 
 /// "Mary-Jane Smith" -> "mary".
@@ -354,22 +308,37 @@ mod tests {
     #[test]
     fn known_names_get_a_real_quote() {
         for seed in 0..3 {
-            let r = pick("jack", seed);
+            let r = pick("jack", seed).expect("a Jack quote");
             assert!(r.quote.contains("Jack"), "{}", r.quote);
-            assert!(!r.citation.starts_with("Adapted"), "{}", r.citation);
         }
-        assert_eq!(pick("Johnny Smith", 0).quote, "Here's Johnny!");
-        assert_eq!(pick("Mary-Jane", 0).quote, NAMED_MARY);
+        let quote = |name| pick(name, 0).map(|r| r.quote);
+        assert_eq!(quote("Johnny Smith").as_deref(), Some("Here's Johnny!"));
+        assert_eq!(quote("Mary-Jane").as_deref(), Some(NAMED_MARY));
     }
 
     const NAMED_MARY: &str = "Mary had a little lamb, its fleece was white as snow.";
 
     #[test]
-    fn unknown_names_get_an_adapted_quote_with_the_name() {
-        for seed in 0..ADAPTED.len() {
-            let r = pick("zebulon ann", seed);
-            assert!(r.quote.contains("Zebulon Ann"), "{}", r.quote);
-            assert!(r.citation.starts_with("Adapted from "), "{}", r.citation);
+    fn unknown_names_get_no_quote_and_a_plain_message() {
+        assert!(pick("zebulon ann", 0).is_none());
+        assert!(pick("david", 0).is_none());
+        assert_eq!(
+            not_found("zebulon ann"),
+            "No famous quote found for Zebulon Ann."
+        );
+    }
+
+    #[test]
+    fn every_curated_quote_contains_its_name() {
+        for (key, quotes) in NAMED {
+            for quote in *quotes {
+                let words: Vec<String> = quote
+                    .text
+                    .split(|c: char| !c.is_alphabetic())
+                    .map(str::to_lowercase)
+                    .collect();
+                assert!(words.iter().any(|w| w == key), "{key}: {}", quote.text);
+            }
         }
     }
 
@@ -389,9 +358,5 @@ mod tests {
         keys.sort_unstable();
         keys.dedup();
         assert_eq!(keys.len(), NAMED.len(), "duplicate key");
-        for (template, citation) in ADAPTED {
-            assert!(template.contains("{name}"), "{template}");
-            assert!(citation.starts_with("Adapted from "), "{citation}");
-        }
     }
 }
