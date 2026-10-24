@@ -48,6 +48,52 @@ button:disabled { background: #c7c7cc; }
   min-height: 4rem;
   white-space: pre-wrap;
 }
+.terminal {
+  margin-top: 1.4rem;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #1e1e1e;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+}
+.terminal-bar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0.55rem 0.75rem;
+  background: #323233;
+}
+.dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+}
+.dot-red { background: #ff5f57; }
+.dot-yellow { background: #febc2e; }
+.dot-green { background: #28c840; }
+.terminal-title {
+  position: absolute;
+  left: 0;
+  right: 0;
+  text-align: center;
+  color: #a0a0a0;
+  font-size: 0.75rem;
+  pointer-events: none;
+}
+.terminal-code {
+  margin: 0;
+  padding: 0.8rem 0.9rem;
+  overflow-x: auto;
+  color: #d4d4d4;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.7rem;
+  line-height: 1.5;
+}
+.tok-comment { color: #6a9955; font-style: italic; }
+.tok-fn { color: #dcdcaa; }
+.tok-prop { color: #9cdcfe; }
+.tok-kw { color: #569cd6; }
+.tok-str { color: #ce9178; }
 .install-hint {
   margin-top: 1.5rem;
   font-size: 0.85rem;

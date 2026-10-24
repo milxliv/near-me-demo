@@ -19,9 +19,32 @@
 <body>
   <div class="app">
     <h1>Near Me</h1>
-    <p class="subtitle">Share your location to find people nearby.</p>
+    <p class="subtitle">Test only. Your location is shown on this screen and never recorded or sent anywhere.</p>
     <button id="btn">Share Location</button>
     <div id="status">Tap to allow location access.</div>
+    <div class="terminal">
+      <div class="terminal-bar" aria-hidden="true">
+        <span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span>
+        <span class="terminal-title">app.js</span>
+      </div>
+<pre class="terminal-code"><code><span class="tok-comment">// Ask this phone where it is.</span>
+<span class="tok-kw">const</span> geo = navigator.<span class="tok-prop">geolocation</span>;
+geo.<span class="tok-fn">getCurrentPosition</span>(
+  (pos) =&gt; {
+    <span class="tok-kw">const</span> { latitude, longitude } =
+      pos.<span class="tok-prop">coords</span>;
+    <span class="tok-comment">// Shown here, never sent.</span>
+    status.<span class="tok-prop">textContent</span> =
+      <span class="tok-str">`${latitude}, ${longitude}`</span>;
+  },
+  (err) =&gt; {
+    status.<span class="tok-prop">textContent</span> = <span class="tok-str">'No location.'</span>;
+  },
+  { <span class="tok-prop">enableHighAccuracy</span>: <span class="tok-kw">true</span> }
+);
+
+console.<span class="tok-fn">log</span>(<span class="tok-str">"What's up Jack!"</span>);</code></pre>
+    </div>
     <div class="install-hint">On iPhone: Share → Add to Home Screen<br>On Android: Menu → Install app</div>
   </div>
 </body>

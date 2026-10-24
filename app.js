@@ -17,7 +17,7 @@ btn.onclick = () => {
   navigator.geolocation.getCurrentPosition(
     (pos) => {
       const { latitude, longitude, accuracy } = pos.coords;
-      status.textContent = `You are at:\n${latitude.toFixed(5)}, ${longitude.toFixed(5)}\n±${Math.round(accuracy)} m\n\nReady to match nearby people.`;
+      status.textContent = `You are at:\n${latitude.toFixed(5)}, ${longitude.toFixed(5)}\n±${Math.round(accuracy)} m\n\nWhat's up Jack!`;
       btn.disabled = false;
       btn.textContent = 'Update Location';
     },
