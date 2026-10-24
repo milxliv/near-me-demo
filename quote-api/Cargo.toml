@@ -1,0 +1,26 @@
+[package]
+name = "near-me-quote"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.95"
+description = "Name in, famous quote out. Stores nothing, logs no requests."
+publish = false
+
+[dependencies]
+anyhow = "1"
+axum = "0.8"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "2"
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "net", "signal"] }
+tower-http = { version = "0.6", features = ["cors", "set-header"] }
+tracing = "0.1"
+tracing-subscriber = "0.3"
+
+[dev-dependencies]
+http-body-util = "0.1"
+tower = { version = "0.5", features = ["util"] }
+
+[profile.release]
+lto = "thin"
+strip = true

@@ -48,6 +48,54 @@ button:disabled { background: #c7c7cc; }
   min-height: 4rem;
   white-space: pre-wrap;
 }
+[hidden] { display: none !important; }
+.name-form {
+  margin-top: 1.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.name-form label {
+  font-weight: 600;
+}
+.name-form input {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  font: inherit;
+  font-size: 1.05rem;
+  border: 1px solid #c7c7cc;
+  border-radius: 12px;
+  background: white;
+  color: inherit;
+}
+.name-form input:focus {
+  outline: 2px solid #007aff;
+  outline-offset: 1px;
+  border-color: #007aff;
+}
+.name-note {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #8e8e93;
+}
+.quote {
+  margin: 1.4rem 0 0;
+  padding: 1rem;
+  background: #f2f2f7;
+  border-radius: 12px;
+  font-size: 0.95rem;
+}
+.quote blockquote {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+.quote figcaption {
+  margin-top: 0.6rem;
+  color: #636366;
+  font-size: 0.85rem;
+}
 .terminal {
   margin-top: 1.4rem;
   border-radius: 12px;

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; manifest-src 'self'; worker-src 'self'; connect-src 'self'; base-uri 'none'; form-action 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; manifest-src 'self'; worker-src 'self'; connect-src https://nearme-api.hsca-capecoral.com/api/quote; base-uri 'none'; form-action 'none'">
   <meta name="referrer" content="no-referrer">
   <meta name="robots" content="noindex, nofollow">
   <title>Near Me</title>
@@ -12,6 +12,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Near Me">
+  <link rel="icon" href="icon-192.png">
   <link rel="apple-touch-icon" href="icon-192.png">
   <link rel="stylesheet" href="app.css">
   <script src="app.js" defer></script>
@@ -22,6 +23,17 @@
     <p class="subtitle">Test only. Your location is shown on this screen and never recorded or sent anywhere.</p>
     <button id="btn">Share Location</button>
     <div id="status">Tap to allow location access.</div>
+    <form id="name-form" class="name-form" hidden>
+      <label for="name">What's your name?</label>
+      <input id="name" name="name" type="text" maxlength="40" required
+             autocomplete="given-name" autocapitalize="words" spellcheck="false" enterkeyhint="send">
+      <button id="name-btn" type="submit">Get my quote</button>
+      <p class="name-note">Only your name is sent, to get a quote. Your location never leaves this phone.</p>
+    </form>
+    <figure id="quote" class="quote" hidden aria-live="polite">
+      <blockquote id="quote-text"></blockquote>
+      <figcaption id="quote-cite"></figcaption>
+    </figure>
     <div class="terminal">
       <div class="terminal-bar" aria-hidden="true">
         <span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span>
