@@ -1,7 +1,7 @@
 //! Curated quotes that use a first name, plus adapted fallbacks.
 //!
-//! The list is fixed and reviewed by hand: no search engine or model writes a
-//! quote or a citation at request time, so nothing can be invented or offensive.
+//! This is the fallback when the Wikiquote lookup finds nothing, fails, or is
+//! switched off. The list is fixed and reviewed by hand.
 
 use crate::QuoteResponse;
 

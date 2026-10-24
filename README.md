@@ -1,13 +1,14 @@
 # Near Me
 
 A small installable web app (PWA) that asks for your location with the browser's standard
-permission prompt, shows the coordinates on screen, and then offers a famous quote that uses
+permission prompt, shows the coordinates on screen, and then finds a famous quote that uses
 your name.
 
 Your location stays on your device. It is shown on the screen and never recorded or sent
 anywhere. If you type your name, only the name goes to a small quote service, which keeps
-nothing and logs no requests. There is no account, no analytics, and no third-party code. The
-page is plain HTML, CSS, and JavaScript with no build step.
+nothing and logs no requests. The service looks the name up on Wikiquote. There is no account,
+no analytics, and no third-party code in the page. The page is plain HTML, CSS, and JavaScript
+with no build step.
 
 ## Try it
 
@@ -37,15 +38,22 @@ page is plain HTML, CSS, and JavaScript with no build step.
 POST /api/quote   {"name": "Jack"}   ->   {"quote": "...", "citation": "..."}
 ```
 
-- Quotes come from a fixed list that was checked by hand, such as lines from films, plays,
-  songs, and memes that use a first name. No search engine or AI writes a quote or a citation
-  at request time.
-- A name with no match gets a famous line with the name put in. Its citation starts with
-  "Adapted from".
+- The service searches [Wikiquote](https://en.wikiquote.org) for a line that uses the name and
+  returns it with its speaker and work, ending in "via Wikiquote". Film and TV lines come first.
+  No AI writes a quote or a citation.
+- Only the first word of the name goes from the service to Wikiquote, as a search. Wikiquote
+  sees the server's address, not yours, and none of your browser's headers.
+- A word filter drops lines with profanity, slurs, or graphic violence. It is a filter, not a
+  guarantee.
+- If Wikiquote finds nothing usable, fails, or takes more than 4 seconds, a fixed list checked
+  by hand answers instead. A name with no match there gets a famous line with the name put in.
+  Its citation starts with "Adapted from".
 - It accepts only `{"name": "..."}` as JSON from this site's origin. A name is 1 to 40 letters,
   spaces, hyphens, apostrophes, or periods.
 - Each visitor gets 10 requests a minute, and the service takes 300 a minute in total.
+- It makes at most 30 Wikiquote lookups a minute in total; past that, the fixed list answers.
 - It stores nothing and logs no requests. It listens on localhost behind Cloudflare Tunnel, and
-  its systemd sandbox forbids outside connections (`near-me-quote.service`).
+  its systemd sandbox allows outside connections only to Wikimedia's addresses
+  (`near-me-quote.service`). Setting `NEARME_LIVE_LOOKUP=off` turns the lookup off.
 
 Run the tests with `cargo test` in `quote-api/`.

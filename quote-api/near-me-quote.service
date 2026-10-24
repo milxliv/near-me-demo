@@ -1,5 +1,6 @@
 # Near Me quote API. Listens on localhost only; Cloudflare Tunnel is the one way in.
-# It stores nothing, logs no requests, and is not allowed to open outside connections.
+# It stores nothing and logs no requests. Its only outside connections go to Wikimedia
+# (en.wikiquote.org); every other address is blocked.
 [Unit]
 Description=Near Me quote API (name in, quote out; stores and logs nothing)
 After=network.target
@@ -8,6 +9,8 @@ After=network.target
 ExecStart=/usr/local/bin/near-me-quote
 Environment=NEARME_BIND=127.0.0.1:3095
 Environment=NEARME_ALLOWED_ORIGIN=https://milxliv.github.io
+# off = answer from the curated list only, with no outside connections
+Environment=NEARME_LIVE_LOOKUP=on
 Restart=on-failure
 RestartSec=2
 
@@ -40,9 +43,16 @@ SystemCallFilter=@system-service
 SystemCallErrorNumber=EPERM
 IPAddressDeny=any
 IPAddressAllow=localhost
+# Wikimedia (AS14907) prefixes, from RIPEstat announced-prefixes on 2026-10-24. If Wikimedia
+# moves to an address not listed here, lookups fail and the curated list answers.
+IPAddressAllow=208.80.152.0/23 208.80.154.0/23 198.35.26.0/23 185.15.56.0/22
+IPAddressAllow=103.102.166.0/24 185.71.138.0/24 195.200.68.0/24
+IPAddressAllow=2620:0:860::/48 2620:0:861::/48 2620:0:863::/48 2001:df2:e500::/48
+IPAddressAllow=2001:67c:930::/48 2a02:ec80:53::/48 2a02:ec80:300::/48 2a02:ec80:600::/48
+IPAddressAllow=2a02:ec80:700::/48 2a02:ec80:a000::/48 2a02:ec80:a100::/48
 
-MemoryMax=64M
-TasksMax=16
+MemoryMax=128M
+TasksMax=32
 CPUQuota=50%
 
 [Install]

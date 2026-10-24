@@ -1,18 +1,20 @@
 [package]
 name = "near-me-quote"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2024"
 rust-version = "1.95"
-description = "Name in, famous quote out. Stores nothing, logs no requests."
+description = "Name in, famous quote out (Wikiquote, then a curated list). Stores nothing, logs no requests."
 publish = false
 
 [dependencies]
 anyhow = "1"
 axum = "0.8"
+regex = "1"
+reqwest = { version = "0.13", default-features = false, features = ["rustls", "gzip"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 thiserror = "2"
-tokio = { version = "1", features = ["rt-multi-thread", "macros", "net", "signal"] }
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "net", "signal", "time"] }
 tower-http = { version = "0.6", features = ["cors", "set-header"] }
 tracing = "0.1"
 tracing-subscriber = "0.3"

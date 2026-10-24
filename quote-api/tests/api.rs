@@ -9,7 +9,7 @@ use tower::ServiceExt;
 const ORIGIN: &str = "https://milxliv.github.io";
 
 fn router() -> Router {
-    app(ORIGIN).expect("router builds")
+    app(ORIGIN, None).expect("router builds")
 }
 
 fn post() -> axum::http::request::Builder {
@@ -206,4 +206,213 @@ async fn each_client_is_rate_limited() {
     );
     let (status, _) = send(&router, from("203.0.113.8")).await;
     assert_eq!(status, StatusCode::OK);
+}
+
+// Live lookup, against a fake Wikiquote on localhost.
+
+use std::sync::{Arc, Mutex};
+use std::time::{Duration, Instant};
+
+use axum::extract::{RawQuery, State};
+use axum::http::HeaderMap;
+use near_me_quote::wikiquote::{CITATION_SUFFIX, Wikiquote};
+
+/// Synthetic page in Wikiquote's format. No real page text.
+const DINNER_BELL: &str = "\
+'''Dinner Bell''' is a 2001 film.
+== Dialogue ==
+:'''Mabel''': Pass the salt, Jack, before it gets cold.
+:'''Jack''': Coming, coming.
+";
+
+#[derive(Clone, Copy)]
+enum Fake {
+    Page(&'static str),
+    Status(StatusCode),
+    Slow,
+    Huge,
+}
+
+/// Every request the fake saw: query string and headers.
+type Seen = Arc<Mutex<Vec<(String, HeaderMap)>>>;
+
+fn reply(title: &str, wikitext: &str) -> String {
+    serde_json::json!({
+        "batchcomplete": true,
+        "query": { "pages": [{
+            "pageid": 1, "ns": 0, "title": title, "index": 1,
+            "revisions": [{ "slots": { "main": { "content": wikitext } } }]
+        }] }
+    })
+    .to_string()
+}
+
+async fn fake_api(
+    State((fake, seen)): State<(Fake, Seen)>,
+    RawQuery(query): RawQuery,
+    headers: HeaderMap,
+) -> (StatusCode, String) {
+    seen.lock()
+        .expect("lock")
+        .push((query.unwrap_or_default(), headers));
+    match fake {
+        Fake::Page(wikitext) => (StatusCode::OK, reply("Dinner Bell (2001 film)", wikitext)),
+        Fake::Status(status) => (status, String::new()),
+        Fake::Slow => {
+            tokio::time::sleep(Duration::from_secs(3)).await;
+            (
+                StatusCode::OK,
+                reply("Dinner Bell (2001 film)", DINNER_BELL),
+            )
+        }
+        Fake::Huge => {
+            let padding = "\n".repeat(4 * 1024 * 1024);
+            (
+                StatusCode::OK,
+                reply(
+                    "Dinner Bell (2001 film)",
+                    &format!("{DINNER_BELL}{padding}"),
+                ),
+            )
+        }
+    }
+}
+
+/// Starts a fake Wikiquote and returns a router that uses it.
+async fn live_router(fake: Fake, budget: Duration) -> (Router, Seen) {
+    let seen: Seen = Arc::default();
+    let api = Router::new()
+        .route("/w/api.php", axum::routing::get(fake_api))
+        .with_state((fake, seen.clone()));
+    let listener = tokio::net::TcpListener::bind("127.0.0.1:0")
+        .await
+        .expect("bind");
+    let url = format!("http://{}/w/api.php", listener.local_addr().expect("addr"));
+    tokio::spawn(async move { axum::serve(listener, api).await });
+    let live = Wikiquote::with_endpoint(&url, budget).expect("client");
+    (app(ORIGIN, Some(live)).expect("router builds"), seen)
+}
+
+fn jack_from_a_visitor() -> Request<Body> {
+    post()
+        .header("cf-connecting-ip", "203.0.113.9")
+        .header(header::COOKIE, "visitor=secret")
+        .body(Body::from(r#"{"name":"jack"}"#))
+        .unwrap()
+}
+
+#[tokio::test]
+async fn live_lookup_returns_a_cited_line_and_sends_only_the_name() {
+    let (router, seen) = live_router(Fake::Page(DINNER_BELL), Duration::from_secs(2)).await;
+    let (status, response) = send(&router, jack_from_a_visitor()).await;
+    assert_eq!(status, StatusCode::OK);
+    let v = json(response).await;
+    assert_eq!(
+        v["quote"], "Pass the salt, Jack, before it gets cold.",
+        "{v}"
+    );
+    assert_eq!(
+        v["citation"],
+        format!("Mabel, Dinner Bell (2001 film){CITATION_SUFFIX}"),
+        "{v}"
+    );
+
+    let seen = seen.lock().expect("lock");
+    let mut searches: Vec<String> = Vec::new();
+    for (query, headers) in seen.iter() {
+        let url = reqwest::Url::parse(&format!("http://fake/?{query}")).expect("query");
+        for (key, value) in url.query_pairs() {
+            assert!(
+                !value.contains("203.0.113"),
+                "client IP sent upstream: {query}"
+            );
+            if key == "gsrsearch" {
+                searches.push(value.into_owned());
+            }
+        }
+        for name in [
+            "origin",
+            "cookie",
+            "referer",
+            "cf-connecting-ip",
+            "x-forwarded-for",
+        ] {
+            assert!(!headers.contains_key(name), "{name} sent upstream");
+        }
+        let agent = headers[header::USER_AGENT].to_str().expect("ascii");
+        assert!(agent.starts_with("near-me-quote/"), "{agent}");
+    }
+    searches.sort();
+    assert_eq!(searches, ["\"Jack\"", "\"Jack\" intitle:film"]);
+}
+
+#[tokio::test]
+async fn an_upstream_error_falls_back_to_the_curated_list() {
+    let (router, seen) = live_router(
+        Fake::Status(StatusCode::INTERNAL_SERVER_ERROR),
+        Duration::from_secs(2),
+    )
+    .await;
+    let (status, response) = send(&router, jack_from_a_visitor()).await;
+    assert_eq!(status, StatusCode::OK);
+    let v = json(response).await;
+    assert!(v["quote"].as_str().unwrap().contains("Jack"), "{v}");
+    assert!(
+        !v["citation"].as_str().unwrap().ends_with(CITATION_SUFFIX),
+        "{v}"
+    );
+    assert_eq!(seen.lock().expect("lock").len(), 2);
+}
+
+#[tokio::test]
+async fn a_slow_upstream_falls_back_within_the_budget() {
+    let (router, _) = live_router(Fake::Slow, Duration::from_millis(300)).await;
+    let started = Instant::now();
+    let (status, response) = send(&router, jack_from_a_visitor()).await;
+    assert_eq!(status, StatusCode::OK);
+    assert!(
+        started.elapsed() < Duration::from_millis(1500),
+        "{:?}",
+        started.elapsed()
+    );
+    let v = json(response).await;
+    assert!(
+        !v["citation"].as_str().unwrap().ends_with(CITATION_SUFFIX),
+        "{v}"
+    );
+}
+
+#[tokio::test]
+async fn an_oversized_reply_is_dropped() {
+    // The page holds a usable line, so only the size cap can explain a fallback.
+    let (router, _) = live_router(Fake::Huge, Duration::from_secs(3)).await;
+    let (_, response) = send(&router, jack_from_a_visitor()).await;
+    let v = json(response).await;
+    assert!(
+        !v["citation"].as_str().unwrap().ends_with(CITATION_SUFFIX),
+        "{v}"
+    );
+}
+
+#[tokio::test]
+async fn no_usable_line_falls_back() {
+    let page = "'''Dinner Bell''' is a 2001 film.\n== Dialogue ==\n:'''Jack''': Coming.\n";
+    let (router, _) = live_router(Fake::Page(page), Duration::from_secs(2)).await;
+    let (_, response) = send(&router, jack_from_a_visitor()).await;
+    let v = json(response).await;
+    assert!(
+        !v["citation"].as_str().unwrap().ends_with(CITATION_SUFFIX),
+        "{v}"
+    );
+}
+
+#[test]
+fn plain_http_is_refused_except_on_loopback() {
+    assert!(
+        Wikiquote::with_endpoint("http://en.wikiquote.org/w/api.php", Duration::from_secs(1))
+            .is_err()
+    );
+    assert!(
+        Wikiquote::with_endpoint("http://127.0.0.1:9/w/api.php", Duration::from_secs(1)).is_ok()
+    );
 }

@@ -3,11 +3,13 @@
 //!
 //! The service stores nothing and logs no requests. It accepts calls only from
 //! one browser origin, only as JSON, only with a `name` field, and only a few
-//! per client per minute.
+//! per client per minute. It looks the name up on Wikiquote and falls back to
+//! a curated list when that finds nothing.
 
 pub mod error;
 pub mod limit;
 pub mod quotes;
+pub mod wikiquote;
 
 use std::sync::Arc;
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
@@ -24,6 +26,7 @@ use tower_http::set_header::SetResponseHeaderLayer;
 
 use error::ApiError;
 use limit::RateLimiter;
+use wikiquote::Wikiquote;
 
 pub const MAX_BODY_BYTES: usize = 512;
 pub const PER_CLIENT_PER_MINUTE: u32 = 10;
@@ -36,6 +39,7 @@ const CLIENT_IP: HeaderName = HeaderName::from_static("cf-connecting-ip");
 struct AppState {
     origin: HeaderValue,
     limiter: RateLimiter,
+    live: Option<Wikiquote>,
 }
 
 #[derive(Debug, Serialize)]
@@ -45,8 +49,10 @@ pub struct QuoteResponse {
 }
 
 /// Builds the router. `allowed_origin` is the one browser origin that may
-/// call the API, for example `https://milxliv.github.io`.
-pub fn app(allowed_origin: &str) -> anyhow::Result<Router> {
+/// call the API, for example `https://milxliv.github.io`. With `live` set,
+/// each name is looked up there first; without it, only the curated list
+/// answers.
+pub fn app(allowed_origin: &str, live: Option<Wikiquote>) -> anyhow::Result<Router> {
     let origin = HeaderValue::from_str(allowed_origin)?;
     let state = Arc::new(AppState {
         origin: origin.clone(),
@@ -55,6 +61,7 @@ pub fn app(allowed_origin: &str) -> anyhow::Result<Router> {
             TOTAL_PER_MINUTE,
             Duration::from_secs(60),
         ),
+        live,
     });
     let cors = CorsLayer::new()
         .allow_origin(origin)
@@ -105,7 +112,13 @@ async fn quote(
     }
     let name = name_field(&body).ok_or(ApiError::BadRequest)?;
     let name = quotes::clean_name(&name).ok_or(ApiError::InvalidName)?;
-    Ok(Json(quotes::pick(&name, seed())))
+    let seed = seed();
+    if let Some(live) = &state.live
+        && let Some(found) = live.find(&name, seed).await
+    {
+        return Ok(Json(found));
+    }
+    Ok(Json(quotes::pick(&name, seed)))
 }
 
 /// Returns the name from a body that is exactly `{"name": "<string>"}`.

@@ -1,7 +1,7 @@
 // Network first, so a new push reaches installed copies. The cache is the offline fallback.
 // Paths are relative to this file: the site lives under /near-me-demo/, not at the root.
 // Other sites share this origin, so only caches named near-me-* are ever touched.
-const CACHE = 'near-me-v3';
+const CACHE = 'near-me-v4';
 const SHELL = ['./', 'app.css', 'app.js', 'manifest.json', 'icon-192.png', 'icon-512.png']
   .map((path) => new URL(path, self.location).href);
 
