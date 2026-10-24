@@ -1,0 +1,56 @@
+* { box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  margin: 0;
+  padding: env(safe-area-inset-top) 1.2rem 1.2rem;
+  background: #f2f2f7;
+  color: #1c1c1e;
+  min-height: 100vh;
+}
+.app {
+  max-width: 420px;
+  margin: 1rem auto;
+  background: white;
+  border-radius: 20px;
+  padding: 1.5rem 1.2rem 1.2rem;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+}
+h1 {
+  font-size: 1.6rem;
+  margin: 0 0 0.4rem;
+  font-weight: 700;
+}
+.subtitle {
+  color: #8e8e93;
+  font-size: 0.95rem;
+  margin: 0 0 1.8rem;
+}
+button {
+  width: 100%;
+  padding: 1rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 14px;
+  background: #007aff;
+  color: white;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+button:active { transform: scale(0.98); }
+button:disabled { background: #c7c7cc; }
+#status {
+  margin-top: 1.4rem;
+  padding: 1rem;
+  background: #f2f2f7;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  min-height: 4rem;
+  white-space: pre-wrap;
+}
+.install-hint {
+  margin-top: 1.5rem;
+  font-size: 0.85rem;
+  color: #8e8e93;
+  text-align: center;
+}
