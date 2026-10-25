@@ -1,5 +1,8 @@
 # Near Me
 
+> **Demo for Jack.** Your location stays on your device. Only the name you type is sent, to
+> look up a quote. Nothing is stored by this page or its quote service.
+
 A small installable web app (PWA) that asks for your location with the browser's standard
 permission prompt, shows the coordinates on screen, shows a famous quote about the place you
 are in, and then finds a famous quote that uses your name.
