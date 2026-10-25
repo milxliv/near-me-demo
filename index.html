@@ -15,6 +15,7 @@
   <link rel="icon" href="icon-192.png">
   <link rel="apple-touch-icon" href="icon-192.png">
   <link rel="stylesheet" href="app.css">
+  <script src="places.js" defer></script>
   <script src="app.js" defer></script>
 </head>
 <body>
@@ -23,6 +24,13 @@
     <p class="subtitle">Test only. Your location is shown on this screen and never recorded or sent anywhere.</p>
     <button id="btn">Share Location</button>
     <div id="status">Tap to allow location access.</div>
+    <figure id="place" class="quote" hidden aria-live="polite">
+      <p id="place-where" class="quote-where"></p>
+      <blockquote id="place-text"></blockquote>
+      <figcaption id="place-cite"></figcaption>
+      <button id="place-next" class="another" type="button" hidden>Another quote</button>
+      <p class="place-note">Picked on this phone from a list that came with the page.</p>
+    </figure>
     <form id="name-form" class="name-form" hidden>
       <label for="name">What's your name?</label>
       <input id="name" name="name" type="text" maxlength="40" required

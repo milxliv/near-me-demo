@@ -1,4 +1,5 @@
 // The location is shown on this screen only. It is never sent anywhere.
+// A quote about the nearest place is picked on this phone from places.js.
 // After a location, the visitor may type a name; only the name goes to QUOTE_API.
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('sw.js');
@@ -26,8 +27,17 @@ const nameBtn = document.getElementById('name-btn');
 const quoteBox = document.getElementById('quote');
 const quoteText = document.getElementById('quote-text');
 const quoteCite = document.getElementById('quote-cite');
+const placeBox = document.getElementById('place');
+const placeWhere = document.getElementById('place-where');
+const placeText = document.getElementById('place-text');
+const placeCite = document.getElementById('place-cite');
+const placeNext = document.getElementById('place-next');
+// Citations link only to the two sources places.js draws from.
+const SOURCE_PAGE = /^https:\/\/(en\.wikiquote\.org\/wiki\/|www\.gutenberg\.org\/ebooks\/)/;
+// The place quote on screen, so "Another quote" can step through the same place.
+let near = null;
 
-// The code panel shows the next three functions as their own source text
+// The code panel shows the next five functions as their own source text
 // (Function.prototype.toString), so it always matches what runs.
 
 function locate(onPosition, onError) {
@@ -50,6 +60,32 @@ function showLocation({ latitude, longitude, accuracy }) {
   ].join('\n');
 }
 
+function quoteNear({ latitude, longitude }) {
+  // Picked on this phone from places.js. Nothing is sent.
+  const nearby = PLACES.points
+    .map(([name, lat, lon, quotes]) => ({ name, quotes, km: distanceKm(latitude, longitude, lat, lon) }))
+    .filter((place) => place.km <= PLACES.radiusKm)
+    .sort((a, b) => a.km - b.km)[0];
+  const [state, country] = PLACES.areas[areaAt(latitude, longitude) - 1] || [-1, -1];
+  const region = [state, country]
+    .filter((i) => i >= 0)
+    .map((i) => ({ name: PLACES.regions[i][0], quotes: PLACES.regions[i][1] }))[0];
+  const place = nearby || region;
+  if (!place) {
+    return { nearby, region };
+  }
+  const pick = Math.floor(Math.random() * place.quotes.length);
+  const [quote, citation, source] = place.quotes[pick];
+  return { nearby, region, place, pick, quote, citation, source };
+}
+
+function nextQuote(near) {
+  // The next quote for the same place, picked on this phone. Nothing is sent.
+  const pick = (near.pick + 1) % near.place.quotes.length;
+  const [quote, citation, source] = near.place.quotes[pick];
+  return { ...near, pick, quote, citation, source };
+}
+
 async function getQuote(name) {
   // Only the name is sent.
   const res = await fetch(QUOTE_API, {
@@ -65,7 +101,33 @@ async function getQuote(name) {
   return { code: res.status, data };
 }
 
-const panel = codePanel(document.getElementById('code'), [locate, showLocation, getQuote]);
+// Great-circle distance in km.
+function distanceKm(lat1, lon1, lat2, lon2) {
+  const rad = Math.PI / 180;
+  const h = Math.sin((lat2 - lat1) * rad / 2) ** 2 +
+    Math.cos(lat1 * rad) * Math.cos(lat2 * rad) * Math.sin((lon2 - lon1) * rad / 2) ** 2;
+  return 12742 * Math.asin(Math.sqrt(h));
+}
+
+// The area number (0 for none) of the grid cell holding a point. Each grid row is
+// runs of "area*count", or "area" for a run of one.
+function areaAt(latitude, longitude) {
+  const { step, rows } = PLACES.grid;
+  const row = rows[Math.min(Math.floor((90 - latitude) / step), rows.length - 1)];
+  const col = Math.min(Math.floor((longitude + 180) / step), Math.round(360 / step) - 1);
+  let end = 0;
+  for (const run of row.split(' ')) {
+    const [area, count = '1'] = run.split('*');
+    end += Number(count);
+    if (col < end) {
+      return Number(area);
+    }
+  }
+  return 0;
+}
+
+const panel = codePanel(document.getElementById('code'),
+  [locate, showLocation, quoteNear, nextQuote, getQuote]);
 
 btn.onclick = () => {
   if (!navigator.geolocation) {
@@ -74,7 +136,8 @@ btn.onclick = () => {
   }
   btn.disabled = true;
   status.textContent = 'Asking for permission…';
-  panel.show([[locate, 'getCurrentPosition(', 'waiting for the location…']], [locate, showLocation]);
+  panel.show([[locate, 'getCurrentPosition(', 'waiting for the location…']],
+    [locate, showLocation, quoteNear, nextQuote]);
 
   locate(
     (coords) => {
@@ -82,12 +145,21 @@ btn.onclick = () => {
       const lat = coords.latitude.toFixed(5);
       const lon = coords.longitude.toFixed(5);
       const acc = Math.round(coords.accuracy);
-      panel.show([
+      const steps = [
         [locate, 'onPosition(pos.coords)', `pos.coords: latitude ${lat}, longitude ${lon}, accuracy ${acc} m`],
         [showLocation, '${latitude.toFixed(5)}', `"${lat}, ${lon}"`],
         [showLocation, '${Math.round(accuracy)}', `"±${acc} m"`],
         [showLocation, "What's up Jack!"]
-      ], [locate, showLocation]);
+      ];
+      try {
+        near = quoteNear(coords);
+        steps.push(...showNear(near));
+      } catch (err) {
+        near = null;
+        showPlace('Near you', "Couldn't load the place quotes.");
+        steps.push([quoteNear, 'const nearby =', `failed: ${err.message}`]);
+      }
+      panel.show(steps, [locate, showLocation, quoteNear, nextQuote]);
       btn.disabled = false;
       btn.textContent = 'Update Location';
       nameForm.hidden = false;
@@ -101,6 +173,54 @@ btn.onclick = () => {
     }
   );
 };
+
+// Shows the place quote and returns the panel steps that explain it.
+function showNear({ nearby, region, place, quote, citation, source }) {
+  const steps = [
+    [quoteNear, 'const nearby =', nearby ? `nearby: ${nearby.name}, ${Math.round(nearby.km)} km`
+      : `nearby: no quoted place within ${PLACES.radiusKm} km`],
+    [quoteNear, 'const [state, country]'],
+    [quoteNear, 'const region =', region ? `region: ${region.name}` : 'region: none with a quote']
+  ];
+  if (!place) {
+    showPlace('Near you', 'No famous quote found near you.');
+    return [...steps, [quoteNear, 'return { nearby, region };']];
+  }
+  const away = place === nearby && nearby.km >= 1 ? `, ${Math.round(nearby.km)} km away` : '';
+  showPlace(`Near you: ${place.name}${away}`, `“${quote}”`, citation, source, place.quotes.length > 1);
+  return [...steps,
+    [quoteNear, 'const [quote, citation, source]', JSON.stringify({ quote, citation })]];
+}
+
+placeNext.onclick = () => {
+  near = nextQuote(near);
+  const { quote, citation, source } = near;
+  showPlace(placeWhere.textContent, `“${quote}”`, citation, source, true);
+  panel.show([[nextQuote, 'const [quote, citation, source]', JSON.stringify({ quote, citation })]],
+    [nextQuote]);
+};
+
+// Without a citation, the text is a note ("no quote found"), not a quote. The citation
+// links to its source page; "Another quote" shows when the place has more than one.
+function showPlace(where, text, cite = '', source = '', more = false) {
+  placeWhere.textContent = where;
+  placeText.textContent = text;
+  placeCite.textContent = cite ? '— ' : '';
+  if (cite && SOURCE_PAGE.test(source)) {
+    const link = document.createElement('a');
+    link.href = source;
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    link.textContent = cite;
+    placeCite.append(link);
+  } else {
+    placeCite.append(cite);
+  }
+  placeCite.hidden = !cite;
+  placeNext.hidden = !more;
+  placeBox.classList.toggle('is-note', !cite);
+  placeBox.hidden = false;
+}
 
 // Without a citation, the text is a note (status or "no quote found"), not a quote.
 function showQuote(text, cite) {

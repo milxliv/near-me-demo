@@ -100,6 +100,32 @@ button:disabled { background: #c7c7cc; }
   color: #636366;
   font-size: 0.85rem;
 }
+.quote-where {
+  margin: 0 0 0.5rem;
+  color: #636366;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+.quote figcaption a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+button.another {
+  width: auto;
+  margin-top: 0.7rem;
+  padding: 0.45rem 0.9rem;
+  font-size: 0.85rem;
+  border-radius: 10px;
+  background: white;
+  color: #007aff;
+  border: 1px solid #c7c7cc;
+}
+.place-note {
+  margin: 0.6rem 0 0;
+  color: #8e8e93;
+  font-size: 0.75rem;
+}
 .terminal {
   margin-top: 1.4rem;
   border-radius: 12px;
