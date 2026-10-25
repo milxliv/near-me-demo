@@ -1,4 +1,5 @@
-// The location is shown on this screen only. It is never sent anywhere.
+// The location is shown on this screen only. It is never sent anywhere; Copy puts it on
+// this phone's clipboard.
 // A quote about the nearest place is picked on this phone from places.js.
 // After a location, the visitor may type a name; only the name goes to QUOTE_API.
 if ('serviceWorker' in navigator) {
@@ -32,10 +33,14 @@ const placeWhere = document.getElementById('place-where');
 const placeText = document.getElementById('place-text');
 const placeCite = document.getElementById('place-cite');
 const placeNext = document.getElementById('place-next');
+const copyBtn = document.getElementById('copy');
 // Citations link only to the two sources places.js draws from.
 const SOURCE_PAGE = /^https:\/\/(en\.wikiquote\.org\/wiki\/|www\.gutenberg\.org\/ebooks\/)/;
 // The place quote on screen, so "Another quote" can step through the same place.
 let near = null;
+// The coordinates the Copy button copies, and the timer that puts its label back.
+let copyText = '';
+let copyReset = 0;
 
 // The code panel shows the next five functions as their own source text
 // (Function.prototype.toString), so it always matches what runs.
@@ -135,6 +140,7 @@ btn.onclick = () => {
     return;
   }
   btn.disabled = true;
+  showCopy('');
   status.textContent = 'Asking for permission…';
   panel.show([[locate, 'getCurrentPosition(', 'waiting for the location…']],
     [locate, showLocation, quoteNear, nextQuote]);
@@ -145,6 +151,7 @@ btn.onclick = () => {
       const lat = coords.latitude.toFixed(5);
       const lon = coords.longitude.toFixed(5);
       const acc = Math.round(coords.accuracy);
+      showCopy(`${lat}, ${lon}`);
       const steps = [
         [locate, 'onPosition(pos.coords)', `pos.coords: latitude ${lat}, longitude ${lon}, accuracy ${acc} m`],
         [showLocation, '${latitude.toFixed(5)}', `"${lat}, ${lon}"`],
@@ -172,6 +179,28 @@ btn.onclick = () => {
       btn.disabled = false;
     }
   );
+};
+
+// Shows the Copy button for these coordinates, or hides it for ''. Pages get the
+// clipboard only over HTTPS, so without it the button stays hidden.
+function showCopy(text) {
+  clearTimeout(copyReset);
+  copyText = text;
+  copyBtn.textContent = 'Copy';
+  copyBtn.hidden = !text || !navigator.clipboard;
+  status.classList.toggle('has-copy', !copyBtn.hidden);
+}
+
+copyBtn.onclick = async () => {
+  // Copied to this phone's clipboard only. Nothing is sent.
+  clearTimeout(copyReset);
+  try {
+    await navigator.clipboard.writeText(copyText);
+    copyBtn.textContent = 'Copied';
+  } catch {
+    copyBtn.textContent = "Couldn't copy";
+  }
+  copyReset = setTimeout(() => { copyBtn.textContent = 'Copy'; }, 1500);
 };
 
 // Shows the place quote and returns the panel steps that explain it.

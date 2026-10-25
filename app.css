@@ -1,29 +1,83 @@
 * { box-sizing: border-box; }
+/* Light is the default. The dark block below swaps the same names. */
+:root {
+  color-scheme: light dark;
+  --page: #f2f2f7;
+  --card: white;
+  --card-shadow: 0 8px 30px rgba(0,0,0,0.1);
+  --text: #1c1c1e;
+  --text-quiet: #3a3a3c;
+  --text-second: #636366;
+  --text-faint: #8e8e93;
+  --fill: #f2f2f7;
+  --field: white;
+  --border: #c7c7cc;
+  --accent: #007aff;
+  --disabled: #c7c7cc;
+  --banner: #fff8e1;
+  --banner-text: #6b4e00;
+  --banner-border: #f0d68a;
+  --term: #1e1e1e;
+  --term-bar: #323233;
+  --term-border: transparent;
+  --term-shadow: 0 4px 16px rgba(0,0,0,0.2);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --page: #000;
+    --card: #1c1c1e;
+    --card-shadow: none;
+    --text: #f2f2f7;
+    --text-quiet: #d1d1d6;
+    --text-second: #aeaeb2;
+    --text-faint: #8e8e93;
+    --fill: #2c2c2e;
+    --field: #2c2c2e;
+    --border: #48484a;
+    --accent: #0a84ff;
+    --disabled: #3a3a3c;
+    --banner: #2b2410;
+    --banner-text: #ffd60a;
+    --banner-border: #5c4a12;
+    --term: #0e0e0f;
+    --term-bar: #2c2c2e;
+    --term-border: #3a3a3c;
+    --term-shadow: none;
+  }
+}
 body {
   font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   margin: 0;
   padding: env(safe-area-inset-top) 1.2rem 1.2rem;
-  background: #f2f2f7;
-  color: #1c1c1e;
+  background: var(--page);
+  color: var(--text);
   min-height: 100vh;
+}
+.demo-banner {
+  max-width: 420px;
+  margin: 1rem auto 0;
+  padding: 0.6rem 0.9rem;
+  border: 1px solid var(--banner-border);
+  border-radius: 12px;
+  background: var(--banner);
+  color: var(--banner-text);
+  font-size: 0.85rem;
+  font-weight: 600;
+  line-height: 1.35;
+  text-align: center;
 }
 .app {
   max-width: 420px;
   margin: 1rem auto;
-  background: white;
+  background: var(--card);
   border-radius: 20px;
   padding: 1.5rem 1.2rem 1.2rem;
-  box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+  box-shadow: var(--card-shadow);
 }
 h1 {
   font-size: 1.6rem;
-  margin: 0 0 0.4rem;
+  margin: 0 0 1.2rem;
   font-weight: 700;
-}
-.subtitle {
-  color: #8e8e93;
-  font-size: 0.95rem;
-  margin: 0 0 1.8rem;
 }
 button {
   width: 100%;
@@ -32,21 +86,39 @@ button {
   font-weight: 600;
   border: none;
   border-radius: 14px;
-  background: #007aff;
+  background: var(--accent);
   color: white;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }
 button:active { transform: scale(0.98); }
-button:disabled { background: #c7c7cc; }
-#status {
+button:disabled { background: var(--disabled); }
+.status-box {
+  position: relative;
   margin-top: 1.4rem;
+}
+#status {
   padding: 1rem;
-  background: #f2f2f7;
+  background: var(--fill);
   border-radius: 12px;
   font-size: 0.95rem;
   min-height: 4rem;
   white-space: pre-wrap;
+}
+/* Room for the Copy button, which sits beside the coordinates. */
+#status.has-copy { padding-right: 6.5rem; }
+button.copy {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  width: auto;
+  min-width: 4.5rem;
+  padding: 0.4rem 0.7rem;
+  font-size: 0.8rem;
+  border-radius: 9px;
+  background: var(--field);
+  color: var(--accent);
+  border: 1px solid var(--border);
 }
 [hidden] { display: none !important; }
 .name-form {
@@ -63,25 +135,25 @@ button:disabled { background: #c7c7cc; }
   padding: 0.85rem 1rem;
   font: inherit;
   font-size: 1.05rem;
-  border: 1px solid #c7c7cc;
+  border: 1px solid var(--border);
   border-radius: 12px;
-  background: white;
+  background: var(--field);
   color: inherit;
 }
 .name-form input:focus {
-  outline: 2px solid #007aff;
+  outline: 2px solid var(--accent);
   outline-offset: 1px;
-  border-color: #007aff;
+  border-color: var(--accent);
 }
 .name-note {
   margin: 0;
   font-size: 0.8rem;
-  color: #8e8e93;
+  color: var(--text-faint);
 }
 .quote {
   margin: 1.4rem 0 0;
   padding: 1rem;
-  background: #f2f2f7;
+  background: var(--fill);
   border-radius: 12px;
   font-size: 0.95rem;
 }
@@ -93,16 +165,16 @@ button:disabled { background: #c7c7cc; }
 }
 .quote.is-note blockquote {
   font-weight: 400;
-  color: #3a3a3c;
+  color: var(--text-quiet);
 }
 .quote figcaption {
   margin-top: 0.6rem;
-  color: #636366;
+  color: var(--text-second);
   font-size: 0.85rem;
 }
 .quote-where {
   margin: 0 0 0.5rem;
-  color: #636366;
+  color: var(--text-second);
   font-size: 0.8rem;
   font-weight: 600;
 }
@@ -117,21 +189,22 @@ button.another {
   padding: 0.45rem 0.9rem;
   font-size: 0.85rem;
   border-radius: 10px;
-  background: white;
-  color: #007aff;
-  border: 1px solid #c7c7cc;
+  background: var(--field);
+  color: var(--accent);
+  border: 1px solid var(--border);
 }
 .place-note {
   margin: 0.6rem 0 0;
-  color: #8e8e93;
+  color: var(--text-faint);
   font-size: 0.75rem;
 }
 .terminal {
   margin-top: 1.4rem;
   border-radius: 12px;
   overflow: hidden;
-  background: #1e1e1e;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+  background: var(--term);
+  border: 1px solid var(--term-border);
+  box-shadow: var(--term-shadow);
 }
 .terminal-bar {
   position: relative;
@@ -139,7 +212,7 @@ button.another {
   align-items: center;
   gap: 6px;
   padding: 0.55rem 0.75rem;
-  background: #323233;
+  background: var(--term-bar);
 }
 .dot {
   width: 11px;
@@ -195,6 +268,6 @@ button.another {
 .install-hint {
   margin-top: 1.5rem;
   font-size: 0.85rem;
-  color: #8e8e93;
+  color: var(--text-faint);
   text-align: center;
 }

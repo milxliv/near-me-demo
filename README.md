@@ -14,7 +14,8 @@ with no build step.
 ## Try it
 
 1. Open the site on a phone.
-2. Tap **Share Location** and answer the permission prompt. A quote about where you are
+2. Tap **Share Location** and answer the permission prompt. Tap **Copy** beside the
+   coordinates to put them on your device's clipboard. A quote about where you are
    appears under the coordinates. Tap its citation to open the source page, or tap
    **Another quote** (when the place has more than one) to see the next.
 3. Type your name and tap **Get my quote**.
@@ -29,7 +30,7 @@ with no build step.
 | `index.html` | The page. Its Content Security Policy allows only this site's own files, plus the one quote endpoint. |
 | `app.js` | Asks for the location and shows it; sends only the name to the quote service. The code panel on the page shows this file's functions as they run, with the values they produce. |
 | `places.js` | Quotes about places, with a coarse map of states and countries. The page picks from it on your device. |
-| `app.css` | Styles. |
+| `app.css` | Styles. The page follows the device's light or dark setting. |
 | `sw.js` | Service worker: loads from the network first and falls back to a cache offline. |
 | `manifest.json` | Name, icons, and launch settings for the installed app. |
 | `quote-api/` | The quote service (Rust). |
