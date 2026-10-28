@@ -2,7 +2,7 @@
   "name": "Near Me",
   "short_name": "Near Me",
   "id": "./",
-  "start_url": "./",
+  "start_url": "./app.html",
   "scope": "./",
   "display": "standalone",
   "background_color": "#f2f2f7",

@@ -3,58 +3,187 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; manifest-src 'self'; worker-src 'self'; connect-src https://nearme-api.hsca-capecoral.com/api/quote; base-uri 'none'; form-action 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'self'; img-src 'self'; manifest-src 'self'; base-uri 'none'; form-action 'none'">
   <meta name="referrer" content="no-referrer">
   <meta name="robots" content="noindex, nofollow">
   <title>Near Me</title>
+  <meta name="description" content="A famous quote about where you are, picked on your phone. Your location is never sent anywhere.">
   <link rel="manifest" href="manifest.json">
   <meta name="color-scheme" content="light dark">
   <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
-  <meta name="theme-color" content="#007aff">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Near Me">
+  <meta name="theme-color" content="#f2f2f7">
   <link rel="icon" href="icon-192.png">
   <link rel="apple-touch-icon" href="icon-192.png">
-  <link rel="stylesheet" href="app.css">
-  <script src="places.js" defer></script>
-  <script src="app.js" defer></script>
+  <link rel="stylesheet" href="site.css">
 </head>
 <body>
-  <p class="demo-banner" role="note">Demo only — location stays on this device and is never recorded or sent.</p>
-  <div class="app">
-    <h1>Near Me</h1>
-    <button id="btn">Share Location</button>
-    <div class="status-box">
-      <div id="status">Tap to allow location access.</div>
-      <button id="copy" class="copy" type="button" hidden>Copy</button>
+  <header class="site-header">
+    <div class="wrap">
+      <a class="brand" href="./"><img src="icon-192.png" alt="" width="28" height="28">Near Me</a>
+      <nav class="nav" aria-label="Site">
+        <a href="how-it-works.html">How it works</a>
+        <a href="places.html">Places</a>
+      </nav>
+      <a class="button small" href="app.html">Open the app</a>
     </div>
-    <figure id="place" class="quote" hidden aria-live="polite">
-      <p id="place-where" class="quote-where"></p>
-      <blockquote id="place-text"></blockquote>
-      <figcaption id="place-cite"></figcaption>
-      <button id="place-next" class="another" type="button" hidden>Another quote</button>
-      <p class="place-note">Picked on this phone from a list that came with the page.</p>
-    </figure>
-    <form id="name-form" class="name-form" hidden>
-      <label for="name">What's your name?</label>
-      <input id="name" name="name" type="text" maxlength="40" required
-             autocomplete="given-name" autocapitalize="words" spellcheck="false" enterkeyhint="send">
-      <button id="name-btn" type="submit">Get my quote</button>
-      <p class="name-note">Only your name is sent, to look up a quote on Wikiquote. Your location never leaves this phone.</p>
-    </form>
-    <figure id="quote" class="quote" hidden aria-live="polite">
-      <blockquote id="quote-text"></blockquote>
-      <figcaption id="quote-cite"></figcaption>
-    </figure>
-    <div class="terminal">
-      <div class="terminal-bar" aria-hidden="true">
-        <span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span>
-        <span class="terminal-title">app.js</span>
+  </header>
+
+  <main>
+    <section class="wrap hero">
+      <div>
+        <p class="eyebrow">No account · no tracking · nothing stored</p>
+        <h1>A famous quote about where you’re standing.</h1>
+        <p class="lede">Share your location and Near Me shows you a line someone famous wrote or said
+          about the place you’re in. Then type your name, and it finds a well-known quote that
+          uses it.</p>
+        <div class="actions">
+          <a class="button" href="app.html">Open Near Me</a>
+          <a class="button quiet" href="how-it-works.html">How it works</a>
+        </div>
+        <p class="reassure">
+          <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2 4 5v6c0 5 3.4 9.7 8 11 4.6-1.3 8-6 8-11V5l-8-3Zm-1.2 14.2-3.5-3.5 1.4-1.4 2.1 2.1 4.9-4.9 1.4 1.4-6.3 6.3Z"/></svg>
+          Your location stays on your phone. Only your name is ever sent.
+        </p>
       </div>
-<pre class="terminal-code" aria-label="The code this page runs, with the values it produced"><code id="code"></code></pre>
+      <div class="phone">
+        <picture>
+          <source srcset="shot-dark.jpg" media="(prefers-color-scheme: dark)">
+          <img src="shot-light.jpg" width="780" height="1688"
+               alt="The Near Me app showing coordinates near the Statue of Liberty, a quote about New York City, and the name Jack typed in for a name quote.">
+        </picture>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <h2>Three taps</h2>
+        <p class="intro">Near Me is a small web app. Nothing to download from a store, and no sign-up.</p>
+        <div class="cards three">
+          <div class="card">
+            <span class="step-num">1</span>
+            <h3>Share your location</h3>
+            <p>Your browser asks first. The coordinates appear on your screen and go nowhere else.</p>
+          </div>
+          <div class="card">
+            <span class="step-num">2</span>
+            <h3>Read about your place</h3>
+            <p>Near Me picks the closest town or landmark with a quote, up to 30 km away. Farther
+              out, it uses your state, then your country.</p>
+          </div>
+          <div class="card">
+            <span class="step-num">3</span>
+            <h3>Get a quote with your name</h3>
+            <p>Type your first name. Near Me finds a real line that uses it, with who said it and
+              where.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <h2>Your location never leaves your phone</h2>
+        <p class="intro">Most location apps send where you are to a server. Near Me works the other way
+          around: every place and every quote comes with the page, and your phone does the picking.</p>
+        <div class="cards two ledger">
+          <div class="card stays">
+            <h3><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M7 1h10a2 2 0 0 1 2 2v18a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2Zm0 3v15h10V4H7Zm5 16.2a1 1 0 1 0 0 2 1 1 0 0 0 0-2Z"/></svg>Stays on your phone</h3>
+            <ul>
+              <li>Your coordinates</li>
+              <li>Which place you’re near</li>
+              <li>The place quote you see</li>
+            </ul>
+          </div>
+          <div class="card sent">
+            <h3><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M2 21 23 12 2 3v7l15 2-15 2v7Z"/></svg>Sent, only if you ask</h3>
+            <ul>
+              <li>Your first name, to look up a quote</li>
+            </ul>
+            <p class="fine">The quote service keeps nothing and logs no requests. It never sees
+              your location.</p>
+          </div>
+        </div>
+        <div class="actions"><a href="how-it-works.html">Read exactly what is sent, and to whom →</a></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <h2>171 quotes about 125 places</h2>
+        <p class="intro">From Timbuktu to Lake Como. Every quote was checked by hand and links to where
+          it came from: Wikiquote, or Bartlett’s <cite>Familiar Quotations</cite>. No AI writes a
+          quote or a citation.</p>
+        <dl class="stats">
+          <div><dt>quotes</dt><dd>171</dd></div>
+          <div><dt>places</dt><dd>125</dd></div>
+          <div><dt>accounts or trackers</dt><dd>0</dd></div>
+          <div><dt>times your location is sent</dt><dd>0</dd></div>
+        </dl>
+        <div class="actions"><a class="button quiet" href="places.html">See every place on the map</a></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap split">
+        <div>
+          <h2>It shows its own code</h2>
+          <p>Under the quotes, Near Me shows the functions it just ran, line by line, with the values
+            they produced. You read the code your phone actually ran, not a description of it.</p>
+          <p>This is the function that asks for a name quote. The only thing in the request is
+            <code>{ name }</code>.</p>
+          <p><a href="https://github.com/milxliv/near-me-demo">Read all of the source on GitHub</a></p>
+        </div>
+        <div class="terminal">
+          <div class="terminal-bar" aria-hidden="true">
+            <span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span>
+            <span class="terminal-title">app.js</span>
+          </div>
+<pre><code class="snippet"><span class="k">async function</span> <span class="f">getQuote</span>(name) {
+  <span class="c">// Only the name is sent.</span>
+  <span class="k">const</span> res = <span class="k">await</span> <span class="f">fetch</span>(QUOTE_API, {
+    <span class="p">method</span>: <span class="s">'POST'</span>,
+    <span class="p">headers</span>: { <span class="s">'Content-Type'</span>: <span class="s">'application/json'</span> },
+    <span class="p">body</span>: JSON.<span class="f">stringify</span>({ name }),
+    <span class="p">credentials</span>: <span class="s">'omit'</span>,
+    <span class="p">referrerPolicy</span>: <span class="s">'no-referrer'</span>,
+    <span class="p">cache</span>: <span class="s">'no-store'</span>,
+    <span class="p">signal</span>: AbortSignal.<span class="f">timeout</span>(<span class="n">8000</span>)
+  });
+  <span class="k">const</span> data = res.ok ? <span class="k">await</span> res.<span class="f">json</span>() : <span class="k">null</span>;
+  <span class="k">return</span> { code: res.status, data };
+}</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <div class="cta">
+          <h2>Try it where you are</h2>
+          <p>Open Near Me on your phone, tap Share Location, and see what someone once said about
+            the place you’re standing.</p>
+          <div class="actions"><a class="button" href="app.html">Open Near Me</a></div>
+          <p class="install">To keep it: open the app, then on iPhone tap Share → Add to Home Screen.
+            On Android, tap Menu → Install app.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <nav class="footer-nav" aria-label="Footer">
+        <a href="app.html">Open the app</a>
+        <a href="how-it-works.html">How it works</a>
+        <a href="places.html">Places</a>
+        <a href="https://github.com/milxliv/near-me-demo">Source code</a>
+      </nav>
+      <p>Near Me is a demo. Quotes come from <a href="https://en.wikiquote.org">Wikiquote</a>
+        (CC BY-SA 4.0) and Bartlett’s <cite>Familiar Quotations</cite>, 9th edition
+        (<a href="https://www.gutenberg.org/ebooks/27889">1905, public domain</a>). Places come from
+        Wikidata (CC0), and outlines from <a href="https://www.naturalearthdata.com">Natural Earth</a>
+        (public domain). Near Me is not affiliated with Wikimedia.</p>
     </div>
-    <div class="install-hint">On iPhone: Share → Add to Home Screen<br>On Android: Menu → Install app</div>
-  </div>
+  </footer>
 </body>
 </html>

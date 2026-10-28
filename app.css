@@ -271,3 +271,9 @@ button.another {
   color: var(--text-faint);
   text-align: center;
 }
+.site-link {
+  margin: 0.8rem 0 0;
+  font-size: 0.85rem;
+  text-align: center;
+}
+.site-link a { color: var(--accent); }

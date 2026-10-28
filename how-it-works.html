@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'self'; img-src 'self'; manifest-src 'self'; base-uri 'none'; form-action 'none'">
+  <meta name="referrer" content="no-referrer">
+  <meta name="robots" content="noindex, nofollow">
+  <title>How it works · Near Me</title>
+  <meta name="description" content="What Near Me does on your phone, what it sends, and where its quotes come from.">
+  <link rel="manifest" href="manifest.json">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f2f2f7">
+  <link rel="icon" href="icon-192.png">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="stylesheet" href="site.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap">
+      <a class="brand" href="./"><img src="icon-192.png" alt="" width="28" height="28">Near Me</a>
+      <nav class="nav" aria-label="Site">
+        <a href="how-it-works.html" aria-current="page">How it works</a>
+        <a href="places.html">Places</a>
+      </nav>
+      <a class="button small" href="app.html">Open the app</a>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="page-head">
+      <h1>How Near Me works</h1>
+      <p class="lede">Near Me answers two questions: what has been said about the place you’re in, and
+        what has been said with your name in it. It answers the first without sending anything. It
+        answers the second by sending only your first name.</p>
+    </div>
+
+    <figure class="flow">
+      <div class="flow-node home">
+        <h3>Your phone</h3>
+        <ul>
+          <li>Reads your location</li>
+          <li>Picks a place from the list that came with the page</li>
+          <li>Shows the place quote</li>
+        </ul>
+        <p class="never">Your location is never sent.</p>
+      </div>
+      <div class="flow-link"><span class="out">first name</span><span class="back">quote</span></div>
+      <div class="flow-node">
+        <h3>Quote service</h3>
+        <ul>
+          <li>Keeps nothing and logs no requests</li>
+          <li>Can reach only Wikimedia</li>
+        </ul>
+      </div>
+      <div class="flow-link"><span class="out">first word</span><span class="back">pages</span></div>
+      <div class="flow-node">
+        <h3>Wikiquote</h3>
+        <ul>
+          <li>Sees the service’s address, not yours</li>
+        </ul>
+      </div>
+      <figcaption>What travels where. The name goes out only when you tap Get my quote.</figcaption>
+    </figure>
+
+    <div class="prose">
+      <h2>The place quote</h2>
+      <p>When you tap <strong>Share Location</strong>, your browser asks for permission. If you allow
+        it, the coordinates appear on the screen and stay there. <strong>Copy</strong> puts them on
+        your phone’s clipboard. Nothing else happens to them.</p>
+      <p>The page already holds every place and quote it knows, in a file called
+        <code>places.js</code>. Your phone picks from it:</p>
+      <ol>
+        <li>The nearest town or landmark with a quote, if one is within 30 km.</li>
+        <li>Otherwise, the state or region you’re in.</li>
+        <li>Otherwise, your country.</li>
+        <li>Otherwise, it says “No famous quote found near you.”</li>
+      </ol>
+      <p>To know which state or country you’re in without asking a server, the file carries a map of
+        the world in cells a quarter of a degree on a side, about 28 km. Near a border, the answer
+        can be one cell off.</p>
+      <p>When a place has more than one quote, <strong>Another quote</strong> shows the next one. Your
+        phone does that too, without a request.</p>
+
+      <h2>The name quote</h2>
+      <p>Type your name and tap <strong>Get my quote</strong>. The page sends the name, and nothing
+        else, to a small quote service.</p>
+      <ul>
+        <li>The service searches Wikiquote for a line that uses the name as a whole word. Lines from
+          films and TV come first.</li>
+        <li>The answer names who said it and in what work.</li>
+        <li>If Wikiquote finds nothing usable, fails, or takes more than 4 seconds, a short
+          hand-checked list answers instead. Every quote on it contains its name.</li>
+        <li>Near Me never puts your name into a quote that doesn’t already contain it. With no real
+          match, you see “No famous quote found for Qwzx.” with your name in place of Qwzx.</li>
+        <li>A word filter drops lines with profanity, slurs, or graphic violence. It is a filter, not
+          a guarantee.</li>
+      </ul>
+
+      <h2>What the quote service sees and keeps</h2>
+      <ul>
+        <li>It accepts one thing: a name of 1 to 40 letters, spaces, hyphens, apostrophes, or
+          periods, sent from this site.</li>
+        <li>It stores nothing and writes no request logs.</li>
+        <li>Only the first word of the name goes on to Wikiquote, as a search. Wikiquote sees the
+          service’s address, not yours, and none of your browser’s headers. Wikimedia keeps its own
+          logs.</li>
+        <li>Requests reach the service through Cloudflare.</li>
+        <li>The service can connect only to Wikimedia’s addresses. Each visitor can ask 10 times a
+          minute.</li>
+        <li>It is one small program written in Rust, and <a href="https://github.com/milxliv/near-me-demo">its
+          source is public</a>.</li>
+      </ul>
+
+      <h2>What the page does on your phone</h2>
+      <ul>
+        <li>No account, no cookies, no analytics, and no code from anyone else.</li>
+        <li>The page’s security policy lets it load only its own files and talk to one address: the
+          quote service. These site pages talk to none.</li>
+        <li>It sends no referrer, so the sites it links to don’t learn where you came from.</li>
+        <li>It saves its own files on your phone so it opens quickly. That copy holds the page, not
+          anything about you.</li>
+      </ul>
+
+      <h2>Where the quotes come from</h2>
+      <ul>
+        <li><a href="https://en.wikiquote.org">Wikiquote</a> (CC BY-SA 4.0): pages about places, and
+          lines that use names.</li>
+        <li>Bartlett’s <cite>Familiar Quotations</cite>, 9th edition (1905), from
+          <a href="https://www.gutenberg.org/ebooks/27889">Project Gutenberg #27889</a>, public
+          domain.</li>
+      </ul>
+      <p>Places come from Wikidata (CC0), and outlines from
+        <a href="https://www.naturalearthdata.com">Natural Earth</a> (public domain). Every place
+        quote was approved by hand, and each one links to its source. Many places don’t have a quote
+        yet, so you may get your state or country instead, or no quote at all.</p>
+      <div class="callout">
+        <p>No AI writes a quote or a citation. Quote APIs and web search weren’t used either: they
+          would have meant sending your place to someone else.</p>
+      </div>
+
+      <div class="actions">
+        <a class="button" href="app.html">Open Near Me</a>
+        <a class="button quiet" href="places.html">See every place</a>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <nav class="footer-nav" aria-label="Footer">
+        <a href="app.html">Open the app</a>
+        <a href="how-it-works.html">How it works</a>
+        <a href="places.html">Places</a>
+        <a href="https://github.com/milxliv/near-me-demo">Source code</a>
+      </nav>
+      <p>Near Me is a demo. Quotes come from <a href="https://en.wikiquote.org">Wikiquote</a>
+        (CC BY-SA 4.0) and Bartlett’s <cite>Familiar Quotations</cite>, 9th edition
+        (<a href="https://www.gutenberg.org/ebooks/27889">1905, public domain</a>). Places come from
+        Wikidata (CC0), and outlines from <a href="https://www.naturalearthdata.com">Natural Earth</a>
+        (public domain). Near Me is not affiliated with Wikimedia.</p>
+    </div>
+  </footer>
+</body>
+</html>

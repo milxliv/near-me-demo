@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; manifest-src 'self'; worker-src 'self'; connect-src https://nearme-api.hsca-capecoral.com/api/quote; base-uri 'none'; form-action 'none'">
+  <meta name="referrer" content="no-referrer">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Near Me</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#007aff">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Near Me">
+  <link rel="icon" href="icon-192.png">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="stylesheet" href="app.css">
+  <script src="places.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <p class="demo-banner" role="note">Demo only — location stays on this device and is never recorded or sent.</p>
+  <div class="app">
+    <h1>Near Me</h1>
+    <button id="btn">Share Location</button>
+    <div class="status-box">
+      <div id="status">Tap to allow location access.</div>
+      <button id="copy" class="copy" type="button" hidden>Copy</button>
+    </div>
+    <figure id="place" class="quote" hidden aria-live="polite">
+      <p id="place-where" class="quote-where"></p>
+      <blockquote id="place-text"></blockquote>
+      <figcaption id="place-cite"></figcaption>
+      <button id="place-next" class="another" type="button" hidden>Another quote</button>
+      <p class="place-note">Picked on this phone from a list that came with the page.</p>
+    </figure>
+    <form id="name-form" class="name-form" hidden>
+      <label for="name">What's your name?</label>
+      <input id="name" name="name" type="text" maxlength="40" required
+             autocomplete="given-name" autocapitalize="words" spellcheck="false" enterkeyhint="send">
+      <button id="name-btn" type="submit">Get my quote</button>
+      <p class="name-note">Only your name is sent, to look up a quote on Wikiquote. Your location never leaves this phone.</p>
+    </form>
+    <figure id="quote" class="quote" hidden aria-live="polite">
+      <blockquote id="quote-text"></blockquote>
+      <figcaption id="quote-cite"></figcaption>
+    </figure>
+    <div class="terminal">
+      <div class="terminal-bar" aria-hidden="true">
+        <span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span>
+        <span class="terminal-title">app.js</span>
+      </div>
+<pre class="terminal-code" aria-label="The code this page runs, with the values it produced"><code id="code"></code></pre>
+    </div>
+    <div class="install-hint">On iPhone: Share → Add to Home Screen<br>On Android: Menu → Install app</div>
+    <p class="site-link"><a href="./">About Near Me</a></p>
+  </div>
+</body>
+</html>

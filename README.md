@@ -7,6 +7,9 @@ A small installable web app (PWA) that asks for your location with the browser's
 permission prompt, shows the coordinates on screen, shows a famous quote about the place you
 are in, and then finds a famous quote that uses your name.
 
+The site's home page explains it, a second page shows what is sent and kept, and a third maps
+every place that has a quote. The app itself is `app.html`.
+
 Your location stays on your device. It is shown on the screen and never recorded or sent
 anywhere. The place quote is picked on your device from a list that comes with the page. If
 you type your name, only the name goes to a small quote service, which keeps
@@ -16,7 +19,7 @@ with no build step.
 
 ## Try it
 
-1. Open the site on a phone.
+1. Open the app (`app.html`) on a phone, or open the site and tap **Open Near Me**.
 2. Tap **Share Location** and answer the permission prompt. Tap **Copy** beside the
    coordinates to put them on your device's clipboard. A quote about where you are
    appears under the coordinates. Tap its citation to open the source page, or tap
@@ -30,7 +33,13 @@ with no build step.
 
 | File | Purpose |
 | --- | --- |
-| `index.html` | The page. Its Content Security Policy allows only this site's own files, plus the one quote endpoint. |
+| `app.html` | The app. Its Content Security Policy allows only this site's own files, plus the one quote endpoint. |
+| `index.html` | The home page: what Near Me does, with a screenshot of the app. |
+| `how-it-works.html` | What stays on the phone, what is sent, and where the quotes come from. |
+| `places.html`, `atlas.js` | Every place with a quote, on a map and in a searchable list, read from `places.js`. |
+| `land.js` | Land cells for that map (Natural Earth). The app never loads it. |
+| `site.css` | Styles for the site pages. |
+| `shot-light.jpg`, `shot-dark.jpg` | Screenshots of the app for the home page. |
 | `app.js` | Asks for the location and shows it; sends only the name to the quote service. The code panel on the page shows this file's functions as they run, with the values they produce. |
 | `places.js` | Quotes about places, with a coarse map of states and countries. The page picks from it on your device. |
 | `app.css` | Styles. The page follows the device's light or dark setting. |

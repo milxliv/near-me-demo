@@ -1,8 +1,12 @@
 // Network first, so a new push reaches installed copies. The cache is the offline fallback.
 // Paths are relative to this file: the site lives under /near-me-demo/, not at the root.
 // Other sites share this origin, so only caches named near-me-* are ever touched.
-const CACHE = 'near-me-v7';
-const SHELL = ['./', 'app.css', 'app.js', 'places.js', 'manifest.json', 'icon-192.png', 'icon-512.png']
+// The app is app.html; './' is the site's home page, which copies installed before the
+// move still open.
+const CACHE = 'near-me-v8';
+const SHELL = ['app.html', 'app.css', 'app.js', 'places.js', 'manifest.json', 'icon-192.png',
+  'icon-512.png', './', 'how-it-works.html', 'places.html', 'site.css', 'atlas.js', 'land.js',
+  'shot-light.jpg', 'shot-dark.jpg']
   .map((path) => new URL(path, self.location).href);
 
 self.addEventListener('install', (e) => {

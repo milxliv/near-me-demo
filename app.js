@@ -6,7 +6,7 @@ if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('sw.js');
 }
 
-// Must match connect-src in index.html's Content Security Policy.
+// Must match connect-src in app.html's Content Security Policy.
 const QUOTE_API = 'https://nearme-api.hsca-capecoral.com/api/quote';
 const NAME_PATTERN = /^\p{L}[\p{L} .'’-]{0,39}$/u;
 const MAX_FIELD = 500;

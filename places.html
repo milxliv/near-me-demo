@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; manifest-src 'self'; base-uri 'none'; form-action 'none'">
+  <meta name="referrer" content="no-referrer">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Places · Near Me</title>
+  <meta name="description" content="Every place Near Me has a quote about, on a map and in a list.">
+  <link rel="manifest" href="manifest.json">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f2f2f7">
+  <link rel="icon" href="icon-192.png">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="stylesheet" href="site.css">
+  <script src="places.js" defer></script>
+  <script src="land.js" defer></script>
+  <script src="atlas.js" defer></script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap">
+      <a class="brand" href="./"><img src="icon-192.png" alt="" width="28" height="28">Near Me</a>
+      <nav class="nav" aria-label="Site">
+        <a href="how-it-works.html">How it works</a>
+        <a href="places.html" aria-current="page">Places</a>
+      </nav>
+      <a class="button small" href="app.html">Open the app</a>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="page-head">
+      <h1>Every place with a quote</h1>
+      <p class="lede">Near Me knows 171 quotes about 125 places: 56 towns and landmarks, 35 states and
+        regions, and 34 countries. This page reads them from the same file the app picks from. It
+        never asks for your location.</p>
+    </div>
+
+    <div class="map-card">
+      <canvas id="map" width="1440" height="576" role="img"
+              aria-label="World map. Shaded areas have a state or country quote. Dots mark towns and landmarks with a quote. The list below has every place."></canvas>
+      <div class="map-foot">
+        <ul class="legend">
+          <li><span class="swatch town"></span>Town or landmark</li>
+          <li><span class="swatch state"></span>State or region</li>
+          <li><span class="swatch country"></span>Country</li>
+          <li><span class="swatch none"></span>No quote yet</li>
+        </ul>
+        <p class="readout" id="readout" aria-live="polite">Tap the map to jump to a place.</p>
+      </div>
+    </div>
+
+    <div class="finder">
+      <label for="find">Find a place</label>
+      <input id="find" type="search" placeholder="Rome, Texas, Japan" autocomplete="off" spellcheck="false">
+      <span class="count" id="count" aria-live="polite"></span>
+    </div>
+    <div id="list"></div>
+    <noscript><p class="noscript">The map and the list need JavaScript. The app works the same way:
+      it picks from this list on your phone.</p></noscript>
+    <div class="actions prose">
+      <a class="button" href="app.html">Find the quote near you</a>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <nav class="footer-nav" aria-label="Footer">
+        <a href="app.html">Open the app</a>
+        <a href="how-it-works.html">How it works</a>
+        <a href="places.html">Places</a>
+        <a href="https://github.com/milxliv/near-me-demo">Source code</a>
+      </nav>
+      <p>Near Me is a demo. Quotes come from <a href="https://en.wikiquote.org">Wikiquote</a>
+        (CC BY-SA 4.0) and Bartlett’s <cite>Familiar Quotations</cite>, 9th edition
+        (<a href="https://www.gutenberg.org/ebooks/27889">1905, public domain</a>). Places come from
+        Wikidata (CC0), and outlines from <a href="https://www.naturalearthdata.com">Natural Earth</a>
+        (public domain). Near Me is not affiliated with Wikimedia.</p>
+    </div>
+  </footer>
+</body>
+</html>
